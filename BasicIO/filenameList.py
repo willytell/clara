@@ -2,9 +2,7 @@ import os
 import glob
 import pandas as pd
 import numpy as np
-
-from stringFilename import getFilenamePair
-
+from BasicIO.filenameString import getFilenamePair
 
 
 def checkExistanceOfFiles(imageFilename, maskFilename):
@@ -89,15 +87,17 @@ def debug_test():
     ctPath = 'CT_nii'
     ctmaskPath = 'CTmask_nii'
     filename = '/home/willytell/Desktop/tcia_diagnosis.xls'
-    X, y = getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name='NoduleMalignancy')
-
-    print(X)
-    print("==========")
-    print(y)
+    # X, y = getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name='NoduleMalignancy')
+    #
+    # print(X)
+    # print("==========")
+    # print(y)
 
     #filename_list = getFilenameList('/home/willytell/Desktop/LungCTDataBase/LIDC-IDRI/Nii_Vol/CTmask_nii')
     filename_list = getFilenameList(os.path.join(databasePath, ctmaskPath))
-    print(filename_list)
+    for filename in filename_list:
+        print(filename)
+    #print(filename_list)
 
 if __name__ == '__main__':
     debug_test()

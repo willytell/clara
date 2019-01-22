@@ -3,15 +3,17 @@ from BasicIO.nifti import readNifti, saveNifti
 from BasicIO.filenameList import getFilenameList
 from BasicImageProcessing.shift import shiftXY
 
-
+######################## Input #########################################
 databasePath = '/home/willytell/Desktop/LungCTDataBase/LIDC-IDRI/Nii_Vol'
 ctPath = 'CT_nii'
 ctmaskPath = 'CTmask_nii'
+########################################################################
 
-outputPath = '/home/willytell/Desktop/output/shiftedMasks'
+######################## Output ########################################
+outputPath = '/home/willytell/Desktop/output/pipeline1/CTshiftedmask_nii'
 shift_x = 2     # shift 2 px in axis x.
 shift_y = 2     # shift 2 px in axis y.
-
+########################################################################
 
 print("Start.")
 

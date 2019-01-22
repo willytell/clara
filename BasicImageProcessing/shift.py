@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.ndimage.measurements import label
 
 def shiftXY(mask_xyz, shift_x, shift_y):
 
@@ -28,6 +29,30 @@ def shiftXY(mask_xyz, shift_x, shift_y):
 
 
     return tmp_xyz
+
+
+def labeling(mask_arr, structural_element_shape):
+    """ Assign a label to the connected components of the mask.
+
+    Params
+    ------
+
+    mask_arr : Numpy array
+      Volume with the mask.
+
+    structural_element_shape : tuple
+      For e.g. (3,3,3).
+
+    Return
+      A mask labeled and the found number of components."""
+    
+    # build the 'structure element'
+    se = np.ones(structural_element_shape, dtype=np.int8)
+
+    # label the mask
+    labeled_mask_arr, ncomponents = label(mask_arr, se)
+
+    return labeled_mask_arr, ncomponents
 
 
 

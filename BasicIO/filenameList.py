@@ -6,7 +6,21 @@ from BasicIO.filenameString import getFilenamePair
 
 
 def checkExistanceOfFiles(imageFilename, maskFilename):
-    # Check if there is the image and its corresponding mask.
+    """ Check if there is the image and its corresponding mask.
+
+    Params
+    ------
+
+    imageFilename : str
+      Full path to the image.
+
+    maskFilename : str
+      Full path to the mask.
+
+    Return
+      Boolean flag with True if both files exist, False in other case.
+    """
+
     if os.path.isfile(os.path.join(imageFilename)) and os.path.isfile(os.path.join(maskFilename)):
         return True
 

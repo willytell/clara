@@ -34,7 +34,7 @@ def getFilenamePair(databasePath, ctPath, ctmaskPath, basename, noduleID):
     nodeID = '1' or '2'
     """
 
-    tmp = basename + '_GT1_' + noduleID
+    tmp = basename + '_GT1'  # + noduleID
 
     imageFilename = os.path.join(databasePath, ctPath, tmp + '.nii.gz')
     maskFilename = os.path.join(databasePath, ctmaskPath, tmp + '_Mask.nii.gz')

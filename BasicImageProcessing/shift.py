@@ -1,7 +1,11 @@
 import numpy as np
 from scipy.ndimage.measurements import label
 
-def shiftXY(mask_xyz, shift_x, shift_y):
+def shiftXY(mask_xyz, shift_x, shift_y, verbose=True):
+
+    if verbose:
+        print("\nShift operation:")
+        print("   The input volume's shape is: {}.".format(mask_xyz.shape))
 
     i, j, k = mask_xyz.nonzero()
 
@@ -18,6 +22,8 @@ def shiftXY(mask_xyz, shift_x, shift_y):
 
     # shifting the values
     tmp_xyz[i + shift_x, j + shift_y, k] = 1
+    if verbose:
+        print("   Shifting the values in x and y axis: {} px and {} px, respectively.".format(shift_x, shift_y))
 
     for row in range(0, shift_x):
         # Delete the last row in axis X.
@@ -27,6 +33,8 @@ def shiftXY(mask_xyz, shift_x, shift_y):
         # Delete the last column in axis Y.
         tmp_xyz = np.delete(tmp_xyz, tmp_xyz.shape[1]-1, axis=1)
 
+    if verbose:
+        print("   The resultant shifted volume's shape is: {}.".format(tmp_xyz.shape))
 
     return tmp_xyz
 

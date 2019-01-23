@@ -7,7 +7,6 @@ This pipeline3.py uses as input
 Using 1., 2. and 3. this code calculate the features extraction with the PyRadiomic package and save them
 in an excel file.
 
-https://drive.google.com/open?id=1UGpoQyLhae2KpVrn2mkni-gRBBzYJNZA
 """
 
 import os

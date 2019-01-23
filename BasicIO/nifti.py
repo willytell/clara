@@ -24,7 +24,7 @@ def readNifti(filename, verbose=True):
     array_xyz = np.transpose(array_zyx, (2, 1, 0))
 
     if verbose:
-        print("Reading nifti format from file: {}".format(filename))
+        print("\nReading nifti format from file: {}".format(filename))
         print("Image size: {}".format(image_xyz.GetSize()))
         print("Volume shape: {}".format(array_xyz.shape))
         print("Minimum value: {}".format(np.min(array_xyz)))
@@ -51,7 +51,7 @@ def saveNifti(array_xyz, metadata, filename, verbose=True):
     sitk.WriteImage(image_xyz, filename)
 
     if verbose:
-        print("Saving the filename: {}.".format(filename))
+        print("\nSaving the filename: {}.".format(filename))
         print("Image size: {}".format(image_xyz.GetSize()))
         print("Volume shape: {}".format(array_xyz.shape))
         print("Minimum value: {}".format(np.min(array_xyz)))

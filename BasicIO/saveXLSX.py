@@ -28,5 +28,5 @@ def saveXLSX(df, filename, sheet_name='Sheet1', index=False, verbose=True):
     writer.save()
 
     if verbose:
-        print("Writing xlsx file: {}.".format(filename))
+        print("\nWriting xlsx file: {}".format(filename))
 

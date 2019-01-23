@@ -6,43 +6,57 @@ from BasicIO.filenameString import getFilenamePair
 
 
 def checkExistanceOfFiles(imageFilename, maskFilename):
-    """ Check if there is the image and its corresponding mask.
+    """Check if there is the image and its corresponding mask.
 
-    Params
-    ------
-
+    Parameters
+    ----------
     imageFilename : str
-      Full path to the image.
+        Full path to the image.
 
     maskFilename : str
-      Full path to the mask.
+        Full path to the mask.
 
-    Return
-      Boolean flag with True if both files exist, False in other case.
+    Returns
+    -------
+    bool
+        True if both files exists, False otherwise.
     """
 
-    if os.path.isfile(os.path.join(imageFilename)) and os.path.isfile(os.path.join(maskFilename)):
+    if os.path.isfile(imageFilename) and os.path.isfile(maskFilename):
         return True
 
     return False
 
 
-def getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name, verbose=True):
+def getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name, roi_flag, verbose=True):
     """
-    Params
-    ------
-
+    Parameters
+    ----------
     databasePath : str
-       Path to the database.
+        Path to the database.
 
     ctPath : str
-       Directory name of the CT images or CT ROI images. For e.g. 'CT_nii' or 'CTRoi_nii'.
+        Directory name of the CT images or CT ROI images. For e.g. 'CT_nii' or 'CTRoi_nii'.
 
     ctmaskPath : str
-       Directory name of the CT Mask or CT ROI Mask. For e.g. 'CTmask_nii' or CTRoimask_nii'.
+        Directory name of the CT Mask or CT ROI Mask. For e.g. 'CTmask_nii' or CTRoimask_nii'.
 
     filename : str
-       Contains the full path to the .xls file. For e.g. '~/Desktop/tca_diagnosis.xls'.
+        Full path to the Excel file. For e.g. '/home/willytell/Desktop/tca_diagnosis.xls'.
+
+    sheet_name : str
+        Sheet of the Excel file.
+
+    roi_flag : bool
+        True if we are working with ROIs images and masks, False otherwise.
+
+    Returns
+    -------
+    X : :obj:tuple:`list`
+        Full path with filename for image and mask in each tuple of the list.
+
+    y : :obj:int:`list`
+        It is the diagnosis for a tuple (image and mask) of X. It is the ground truth.
 
     """
 
@@ -58,17 +72,18 @@ def getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename
         noduleID = df.iloc[idx]['NoduleID']     # numpy.int64
         diagnosis = df.iloc[idx]['Diagnosis']   # numpy.int64
 
-        imageFilename, maskFilename = getFilenamePair(databasePath, ctPath, ctmaskPath, basename, noduleID.astype(str))
+        imageFilename, maskFilename = getFilenamePair(databasePath, ctPath, ctmaskPath, basename,
+                                                      noduleID.astype(str), roi_flag=roi_flag)
 
         if checkExistanceOfFiles(imageFilename, maskFilename):
             X.append((imageFilename, maskFilename))
             y.append(diagnosis)
             if verbose:
-                print("Included files: {}, {}, {}.".format(idx, imageFilename, maskFilename))
+                print("\nIncluded files for index: {} \n{} \n{}".format(idx, imageFilename, maskFilename))
 
         else:
             if verbose:
-                print("Discarded files: {}, {}, {}.".format(idx, imageFilename, maskFilename))
+                print("\nDiscarded files for index: {} \n{} \n{}".format(idx, imageFilename, maskFilename))
 
 
     return X, y
@@ -76,19 +91,20 @@ def getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename
 
 
 def getFilenameList(path, pattern='*.nii.gz'):
-    """ Obtain a list of filenames for a given directory path.
+    """Obtain a list of filenames for a given directory path.
 
-    Params
-    ------
-
+    Parameters
+    ----------
     path : str
-      Directory path, for e.g. '/home/willytell/Desktop/LungCTDataBase/LIDC-IDRI/Nii_Vol/CTmask_nii
+        Directory path, for e.g. '/home/willytell/Desktop/LungCTDataBase/LIDC-IDRI/Nii_Vol/CTmask_nii
 
     pattern : str
-      Filter filenames using the pattern extension.
+        Filter filenames using the pattern extension.
 
-    Return
-      A filename list, without the path, only the filename is included."""
+    Returns
+    -------
+    list
+        Filenames without the path, only the filename (and extension) is included."""
 
     filename = [os.path.basename(x) for x in sorted(glob.glob(os.path.join(path, pattern)))]
 

@@ -37,7 +37,10 @@ def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_l
     extractor = featureextractor.RadiomicsFeaturesExtractor(paramPath)
 
     if verbose:
-        print("Extracting features from: {} \n and \n {} \n with segmentation label {}.\n".format(imageName, maskName, segmentation_label))
+        print("\nExtracting features:")
+        print("   Segmentation label: {}".format(segmentation_label))
+        print("   Image file: {}".format(imageName))
+        print("   Mask file: {}".format(maskName))
 
     featureVector = extractor.execute(imageITK, maskITK, label=segmentation_label)
 
@@ -54,6 +57,7 @@ def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_l
 
     # Adding some columns
     lst.insert(0, ('diagnosis', y_label))
+    lst.insert(0, ('segmentation_label', segmentation_label))
     lst.insert(0, ('mask_filename', maskName))
     lst.insert(0, ('image_filename', imageName))
 

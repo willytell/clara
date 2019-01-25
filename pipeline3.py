@@ -11,12 +11,11 @@ https://drive.google.com/open?id=1UGpoQyLhae2KpVrn2mkni-gRBBzYJNZA
 """
 
 import os
-import numpy as np
 import pandas as pd
-from BasicIO.nifti import readNifti
-from BasicIO.filenameList import getImageMaskFilenamesAndDiagnosis
-from BasicIO.saveXLSX import saveXLSX
-from Features.radiomicFeatures import getPyRadiomicFeatures
+import numpy as np
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.svm import SVC
+
 
 ######################## Input #########################################
 databasePath = '/home/willytell/Desktop'
@@ -35,29 +34,15 @@ extracted_features = os.path.join(outputPath, 'features.xlsx')
 
 print("Start.")
 
-X, y = getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name=sheet_name)
+df = pd.read_excel('extractedFeatures.xlsx')
+df2 = df[df.columns[4:]]
+X = df2.values
+df3 = df[df.columns[3]]
+y = df3.values
+clf = SVC(gamma='auto')
+param_dist = dict(C=[1.0, 0.6, 0.7, 0.8, 0.9], gamma=['auto', 'scale', 0.3, 0.5], kernel=['rbf', 'linear', 'poly', 'sigmoid'])
+rand = RandomizedSearchCV(clf, param_dist, cv=3, scoring='accuracy', n_iter=2, random_state=5, n_jobs=7)
+rand.fit(X,y)
 
-mydict = []  # create an empty list
-
-for index in range(0, len(X)):
-    imageName = X[index][0]  # full path to the image
-    maskName = X[index][1]  # full path to the mask
-    y_label = y[index]  # diagnosis: 0 = benign, 1 = malign
-
-    imageITK, _, _ = readNifti(imageName)
-    maskITK, mask_arr_xyz, _ = readNifti(maskName)
-
-    # The mask is already labeled.
-    ncomponents = np.max(mask_arr_xyz)
-
-    # MODIFY THIS PART <<<<<<<<<<<< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    for segmentation_label in range(1, ncomponents):     # We skip the 0, which correspond to the background label.
-        od = getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_label, y_label, paramPath)
-        mydict.append(od)
-
-df = pd.DataFrame.from_dict(mydict)     # pd.DataFrame.from_records(mydict)
-
-saveXLSX(extracted_features, df)
 
 print("Finish.")

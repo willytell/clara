@@ -1,7 +1,7 @@
 from radiomics import featureextractor
 from collections import OrderedDict
 
-def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_label, y_label, paramPath, verbose=True):
+def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath, verbose=True):
     """ Extract features using pyradiomic.
 
     Params
@@ -42,7 +42,10 @@ def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_l
         print("   Image file: {}".format(imageName))
         print("   Mask file: {}".format(maskName))
 
-    featureVector = extractor.execute(imageITK, maskITK, label=segmentation_label)
+    print(imageITK.GetSize())
+    print(maskITK.GetSize())
+
+    featureVector = extractor.execute(imageITK, maskITK) #, label=segmentation_label)
 
     new_row = {}
     for featureName in featureVector.keys():  # Note that featureVectors is a 'disordered dictionary'
@@ -56,7 +59,8 @@ def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_l
     lst = sorted(new_row.items())  # Ordering the new_row dictionary.
 
     # Adding some columns
-    lst.insert(0, ('diagnosis', y_label))
+    lst.insert(0, ('patient_diagnosis', patientDiagnosis))
+    lst.insert(0, ('nodule_diagnosis', noduleDiagnosis))
     lst.insert(0, ('segmentation_label', segmentation_label))
     lst.insert(0, ('mask_filename', maskName))
     lst.insert(0, ('image_filename', imageName))

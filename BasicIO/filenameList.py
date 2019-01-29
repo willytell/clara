@@ -28,6 +28,58 @@ def checkExistanceOfFiles(imageFilename, maskFilename):
     return False
 
 
+def getFilterList(filename, sheet_name, set_flag=1, verbose=True):
+    df = pd.read_excel(filename, sheet_name=sheet_name)
+    if verbose:
+        print("Reading the file: {}".format(filename))
+
+    df = df.loc[df['Training'] == set_flag]    # set_flag=1 filter traint set, otherwise filter test set.
+
+    return df
+
+
+def getListFromPatientList(databasePath, ctPath, ctmaskPath, filename, sheet_name, verbose=True):
+
+    df = pd.read_excel(filename, sheet_name=sheet_name)
+    if verbose:
+        print("Reading the file: {}".format(filename))
+
+    image_list = []
+    mask_list = []
+    info_list = []
+
+    for idx in range(0, len(df)):
+        basename = df.iloc[idx]['Patient ID']  # str
+        #noduleID = df.iloc[idx]['NoduleID']
+        noduleDiagnosis = df.iloc[idx]['Nodule Diagnosis']
+        patientDiagnosis = df.iloc[idx]['Patient Diagnosis']
+
+        #imageFilename_list = getFilenameList(os.path.join(databasePath, ctPath), basename + '*')
+        maskFilename_list = getFilenameList(os.path.join(databasePath, ctmaskPath), basename + '*')
+        maskFilename_list.sort()
+
+        imageFilename_list = []
+
+        for fname in maskFilename_list:
+            fname = fname.split('_Mask.nii.gz')[0] + '.nii.gz'
+            imageFilename_list.append(fname)
+
+        for idx in range(len(maskFilename_list)):
+            if checkExistanceOfFiles(os.path.join(databasePath, ctPath, imageFilename_list[idx]),
+                                     os.path.join(databasePath, ctmaskPath, maskFilename_list[idx])):
+                mask_list.append(maskFilename_list[idx])
+                image_list.append(imageFilename_list[idx])
+                info_list.append((noduleDiagnosis, patientDiagnosis))
+
+                if verbose:
+                    print("\nFor index: {} including\nfile {}".format(idx, maskFilename_list[idx]))
+                else:
+                    if verbose:
+                        print("\nFor index: {} discarding\nfile {}".format(idx, maskFilename_list[idx]))
+
+    return image_list, mask_list, info_list
+
+
 def getImageMaskFilenamesAndDiagnosis(databasePath, ctPath, ctmaskPath, filename, sheet_name, roi_flag, verbose=True):
     """
     Parameters

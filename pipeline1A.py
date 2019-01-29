@@ -13,20 +13,24 @@ from BasicIO.filenameList import getListFromPatientList
 from BasicImageProcessing.shift import shiftXY
 
 ######################## Input #########################################
-databasePath = '/home/willytell/Escritorio/LungCTDataBase/lc3d/Nii_Vol'
+databasePath = '/home/willytell/Desktop/LungCTDataBase/LIDC-IDRI/Nii_Vol'
 
 # Using ROI image and mask
-roi_flag = True
-ctPath = 'CTRoi_nii'
-ctmaskPath = 'CTRoimask_nii'
+roi_flag = False
+ctPath = 'CT_nii'
+ctmaskPath = 'CTmask_nii'
+#roi_flag = True
+# ctPath = 'CTRoi_nii'
+# ctmaskPath = 'CTRoimask_nii'
 
 # Excel file that contains the list of filenames.
-filename = '/home/willytell/Escritorio/tcia_diagnosis_25_01_2019.xls'
+filename = '/home/willytell/Desktop/tcia_diagnosis_25_01_2019.xls'
 sheet_name='NoduleMalignancy'
 ########################################################################
 
 ######################## Output ########################################
-outputPath = '/home/willytell/Escritorio/output/pipeline1A/CTRoishiftedmask_nii'
+outputPath = '/home/willytell/Desktop/output/pipeline1A/CTshiftedmask_nii'
+#outputPath = '/home/willytell/Desktop/output/pipeline1A/CTRoishiftedmask_nii'
 shift_x = 2     # shift 2 px in axis x.
 shift_y = 2     # shift 2 px in axis y.
 ########################################################################
@@ -36,6 +40,8 @@ print("Start.")
 
 #
 image_list, mask_list, _ = getListFromPatientList(databasePath, ctPath, ctmaskPath, filename, sheet_name)
+
+print("The length of image_list is {} and mask_list is {}.".format(len(image_list), len(mask_list)))
 
 assert len(image_list)==len(mask_list), "Length of image_list and mask_list must be the same."
 

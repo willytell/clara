@@ -21,16 +21,16 @@ from BasicIO.saveXLSX import saveXLSX
 from Features.radiomicFeatures import getPyRadiomicFeatures
 
 ######################## Input #########################################
-databasePath = '/home/willytell/Escritorio'
+databasePath = '/home/willytell/Desktop/output/pipeline1B'
 
 # Using ROI image and mask
 roi_flag = True
-ctPath = 'LungCTDataBase/lc3d/Nii_Vol/CTRoi_nii'
-ctmaskPath = 'output/pipeline1A/CTRoishiftedmask_nii'
+ctPath = 'CTRoi_nii'
+ctmaskPath = 'CTRoimask_nii'
 
 
 # Excel file that contains the list of filenames.
-filename = '/home/willytell/Escritorio/tcia_diagnosis_25_01_2019.xls'
+filename = '/home/willytell/Desktop/tcia_diagnosis_25_01_2019.xls'
 sheet_name='NoduleMalignancy'
 
 # Params to configure the feature extractor.
@@ -38,18 +38,22 @@ paramPath = os.path.join('config', 'Params.yaml')
 ########################################################################
 
 ######################## Output ########################################
-outputPath = '/home/willytell/Escritorio/output/pipeline2A'
-extracted_features_train = os.path.join(outputPath, 'extractedFeaturesTrain.xlsx')
-extracted_features_test = os.path.join(outputPath, 'extractedFeaturesTest.xlsx')
+outputPath = '/home/willytell/Desktop/output/pipeline2A'
+extracted_features_train = os.path.join(outputPath, 'extractedFeatures_Train.xlsx')
+extracted_features_test = os.path.join(outputPath, 'extractedFeatures_Test.xlsx')
 ########################################################################
 
 
 print("Start.")
 
-#
+# Filter the traning cases
 df_train = getFilterList(filename, sheet_name, set_flag=1)
 
+# Filter the testing cases
 df_test = getFilterList(filename, sheet_name, set_flag=0)
+
+
+######################################## TRAIN CASES ##########################################################
 
 mydict = []
 
@@ -71,8 +75,8 @@ for index in range(len(df_train)):
     # Image and mask must have the same volume shape.
     assert image_arr_xyz.shape == mask_arr_xyz.shape, "Error: image and mask shape must match!"
 
-    # Standardize the image values between [0, 1]
-    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min())
+    # Standardize the image values between [0, 255]
+    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
 
     # transforming from (x,y,z) to (z,y,x).
     standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
@@ -84,7 +88,6 @@ for index in range(len(df_train)):
     new_imageITK_xyz.SetDirection(image_metadata.direction)
     new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 
-
     # As we are working with mask's ROI, the segmentation label always is: 0 (background) or 1 (foreground).
     # For this reason, we are going to compute radiomics from mask ROIs that have only one foreground region.
     segmentation_label = 1
@@ -93,17 +96,17 @@ for index in range(len(df_train)):
     od = getPyRadiomicFeatures(imageName, maskName, new_imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
     mydict.append(od)
 
-df = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)
+df_tmp1 = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)
 
 # Save the features to an Excel file.
-saveXLSX(df, extracted_features_train, sheet_name='Sheet1')
+saveXLSX(df_tmp1, extracted_features_train, sheet_name='Sheet1')
 
 
 
 
-########################################
+######################################## TEST CASES ##########################################################
 
-tmp = os.path.join(outputPath, 'test_cases.xlsx')
+tmp = os.path.join(outputPath, 'temporary_file.xlsx')
 saveXLSX(df_test, tmp, sheet_name='Sheet1')
 
 image_list, mask_list, info_list = getListFromPatientList(databasePath, ctPath, ctmaskPath, tmp, sheet_name='Sheet1')
@@ -123,8 +126,8 @@ for index in range(0, len(mask_list)):
     # Image and mask must have the same volume shape.
     assert image_arr_xyz.shape == mask_arr_xyz.shape, "Error: image and mask shape must match!"
 
-    # Standardize the image values between [0, 1]
-    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min())
+    # Standardize the image values between [0, 255]
+    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
 
     # transforming from (x,y,z) to (z,y,x).
     standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
@@ -136,7 +139,6 @@ for index in range(0, len(mask_list)):
     new_imageITK_xyz.SetDirection(image_metadata.direction)
     new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 
-
     # As we are working with mask's ROI, the segmentation label always is: 0 (background) or 1 (foreground).
     # For this reason, we are going to compute radiomics from mask ROIs that have only one foreground region.
     segmentation_label = 1
@@ -145,9 +147,9 @@ for index in range(0, len(mask_list)):
     od = getPyRadiomicFeatures(imageName, maskName, new_imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
     mydict.append(od)
 
-df = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)
+df_tmp2 = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)
 
 # Save the features to an Excel file.
-saveXLSX(df, extracted_features_test, sheet_name='Sheet1')
+saveXLSX(df_tmp2, extracted_features_test, sheet_name='Sheet1')
 
 print("\nFinish.")

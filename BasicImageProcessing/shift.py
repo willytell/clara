@@ -64,6 +64,40 @@ def labeling(mask_arr, structural_element_shape):
 
 
 
+def getROIList(labeled_mask_arr, ncomponents):
+
+    ROI_List = []
+
+    #####################################################################################
+    # Input:  volume (is a mask) where 0 means background and 1 means groundtruth
+    # Output: Volume Bounding Box for the volumen: xmin, xma, ymin, ymax, zmin, zmax
+    def bbox_3D(volume):
+        r = np.any(volume, axis=(1, 2))
+        c = np.any(volume, axis=(0, 2))
+        z = np.any(volume, axis=(0, 1))
+
+        rmin, rmax = np.where(r)[0][[0, -1]]
+        cmin, cmax = np.where(c)[0][[0, -1]]
+        zmin, zmax = np.where(z)[0][[0, -1]]
+
+        return [rmin, rmax, cmin, cmax, zmin, zmax]
+    #####################################################################################
+
+
+    for num_label in range(1, ncomponents+1):
+        mask = np.zeros(labeled_mask_arr.shape, dtype=np.int)
+        mask[np.where(labeled_mask_arr == num_label)] = 1
+
+        # Find the exact position for the volume bounding box
+        one_ROI = bbox_3D(mask)
+
+        ROI_List.append(one_ROI)
+
+
+    return ROI_List
+
+
+
 def debug_test():
     mask_zxy = np.zeros((5,5,5), dtype=np.int8)
     mask_zxy[:,4,:]=1

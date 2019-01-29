@@ -21,7 +21,8 @@ from BasicIO.saveXLSX import saveXLSX
 from Features.radiomicFeatures import getPyRadiomicFeatures
 
 ######################## Input #########################################
-databasePath = '/home/willytell/Desktop/output/pipeline1B'
+databasePath = '/home/willytell/Escritorio/LungCTDataBase/Experimentation'
+#databasePath = '/home/willytell/Desktop/output/pipeline1B'
 
 # Using ROI image and mask
 roi_flag = True
@@ -30,7 +31,7 @@ ctmaskPath = 'CTRoimask_nii'
 
 
 # Excel file that contains the list of filenames.
-filename = '/home/willytell/Desktop/tcia_diagnosis_25_01_2019.xls'
+filename = '/home/willytell/Escritorio/tcia_diagnosis_25_01_2019.xls'
 sheet_name='NoduleMalignancy'
 
 # Params to configure the feature extractor.
@@ -38,7 +39,7 @@ paramPath = os.path.join('config', 'Params.yaml')
 ########################################################################
 
 ######################## Output ########################################
-outputPath = '/home/willytell/Desktop/output/pipeline2A'
+outputPath = '/home/willytell/Escritorio/output/pipeline2A'
 extracted_features_train = os.path.join(outputPath, 'extractedFeatures_Train.xlsx')
 extracted_features_test = os.path.join(outputPath, 'extractedFeatures_Test.xlsx')
 ########################################################################
@@ -75,25 +76,25 @@ for index in range(len(df_train)):
     # Image and mask must have the same volume shape.
     assert image_arr_xyz.shape == mask_arr_xyz.shape, "Error: image and mask shape must match!"
 
-    # Standardize the image values between [0, 255]
-    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
-
-    # transforming from (x,y,z) to (z,y,x).
-    standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
-    #saveNifti(standardized_image_arr_xyz, image_metadata, os.path.join(outputPath, imageName))   # <-- check here!
-    new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
-
-    # Setting properties
-    new_imageITK_xyz.SetOrigin(image_metadata.origen)
-    new_imageITK_xyz.SetDirection(image_metadata.direction)
-    new_imageITK_xyz.SetSpacing(image_metadata.spacing)
+    # # Standardize the image values between [0, 255]
+    # standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
+    #
+    # # transforming from (x,y,z) to (z,y,x).
+    # standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
+    # #saveNifti(standardized_image_arr_xyz, image_metadata, os.path.join(outputPath, imageName))   # <-- check here!
+    # new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
+    #
+    # # Setting properties
+    # new_imageITK_xyz.SetOrigin(image_metadata.origen)
+    # new_imageITK_xyz.SetDirection(image_metadata.direction)
+    # new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 
     # As we are working with mask's ROI, the segmentation label always is: 0 (background) or 1 (foreground).
     # For this reason, we are going to compute radiomics from mask ROIs that have only one foreground region.
     segmentation_label = 1
 
     # Feature extraction.
-    od = getPyRadiomicFeatures(imageName, maskName, new_imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
+    od = getPyRadiomicFeatures(imageName, maskName, imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
     mydict.append(od)
 
 df_tmp1 = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)
@@ -126,25 +127,25 @@ for index in range(0, len(mask_list)):
     # Image and mask must have the same volume shape.
     assert image_arr_xyz.shape == mask_arr_xyz.shape, "Error: image and mask shape must match!"
 
-    # Standardize the image values between [0, 255]
-    standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
-
-    # transforming from (x,y,z) to (z,y,x).
-    standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
-    #saveNifti(standardized_image_arr_xyz, image_metadata, os.path.join(outputPath, imageName))   # <-- check here!
-    new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
-
-    # Setting properties
-    new_imageITK_xyz.SetOrigin(image_metadata.origen)
-    new_imageITK_xyz.SetDirection(image_metadata.direction)
-    new_imageITK_xyz.SetSpacing(image_metadata.spacing)
+    # # Standardize the image values between [0, 255]
+    # standardized_image_arr_xyz = (image_arr_xyz - image_arr_xyz.min()) / (image_arr_xyz.max() - image_arr_xyz.min()) * 255.0
+    #
+    # # transforming from (x,y,z) to (z,y,x).
+    # standardized_image_arr_zyx = np.transpose(standardized_image_arr_xyz, (2, 1, 0))
+    # #saveNifti(standardized_image_arr_xyz, image_metadata, os.path.join(outputPath, imageName))   # <-- check here!
+    # new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
+    #
+    # # Setting properties
+    # new_imageITK_xyz.SetOrigin(image_metadata.origen)
+    # new_imageITK_xyz.SetDirection(image_metadata.direction)
+    # new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 
     # As we are working with mask's ROI, the segmentation label always is: 0 (background) or 1 (foreground).
     # For this reason, we are going to compute radiomics from mask ROIs that have only one foreground region.
     segmentation_label = 1
 
     # Feature extraction.
-    od = getPyRadiomicFeatures(imageName, maskName, new_imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
+    od = getPyRadiomicFeatures(imageName.split('/')[-1], maskName.split('/')[-1], imageITK_xyz, maskITK_xyz, segmentation_label, noduleDiagnosis, patientDiagnosis, paramPath)
     mydict.append(od)
 
 df_tmp2 = pd.DataFrame.from_dict(mydict)  # pd.DataFrame.from_records(mydict)

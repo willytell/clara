@@ -61,7 +61,7 @@ def getPyRadiomicFeatures(imageName, maskName, imageITK, maskITK, segmentation_l
     # Adding some columns
     lst.insert(0, ('patient_diagnosis', patientDiagnosis))
     lst.insert(0, ('nodule_diagnosis', noduleDiagnosis))
-    lst.insert(0, ('segmentation_label', segmentation_label))
+    lst.insert(0, ('segmentation_label', segmentation_label))  # it corresponds to the label number in the full volume.
     lst.insert(0, ('mask_filename', maskName))
     lst.insert(0, ('image_filename', imageName))
 

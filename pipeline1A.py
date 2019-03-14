@@ -1,10 +1,14 @@
 """
 This 'pipeline1A.py' applies a shift operation only for mask file. The shift operation consists in the displacement of
-2 pixels of the all values in both axis x an y. Then save the resultant shifted mask in the directory, which is
+n pixels over all values in both axis x an y. Then save the resultant shifted mask in the directory, which is
 indicated by the outputPath variable, it preserves the same file name.
 
-Sketch:
+Input:
+  1. list of patient in an excel file that contains the basename of each file,
+  2. Directory with image and mask files.
 
+Output:
+  1. save file with shifted mask.
 """
 
 import os

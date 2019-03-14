@@ -1,14 +1,12 @@
 """
-This pipeline2.py takes as input:
-  1. the ROI image files, and
-  2. the ROI shifted mask files (preprocessed by pipeline1.py),
-  3. excel file with the list of image, mask, and diagnosis.
+This pipeline2A.py extract features.
+Input:
+  1. List of patients in an excel file,
+  2. image and mask directories.
 
-Using 1., 2., and 3., this code perform the features extraction for each pair of image and mask. The features are
-extracted with PyRadiomic and saved in an excel file.
-
-Sketch:
-  https://drive.google.com/open?id=1UGpoQyLhae2KpVrn2mkni-gRBBzYJNZA
+Output:
+  1. extracted features in an excel file for train set.
+  2. extracted features in an excel file for test set.
 """
 
 import os
@@ -17,11 +15,11 @@ import numpy as np
 import SimpleITK as sitk
 from BasicIO.nifti import readNifti, saveNifti
 from BasicIO.filenameList import getFilterList, getListFromPatientList
-from BasicIO.saveXLSX import saveXLSX
+from BasicIO.saveFeatures import saveXLSX
 from Features.radiomicFeatures import getPyRadiomicFeatures
 
 ######################## Input #########################################
-databasePath = '/home/willytell/Escritorio/LungCTDataBase/Experimentation'
+databasePath = '/home/willytell/Desktop/LungCTDataBase/Experimentation'
 #databasePath = '/home/willytell/Desktop/output/pipeline1B'
 
 # Using ROI image and mask
@@ -31,7 +29,7 @@ ctmaskPath = 'CTRoimask_nii'
 
 
 # Excel file that contains the list of filenames.
-filename = '/home/willytell/Escritorio/tcia_diagnosis_25_01_2019.xls'
+filename = '/home/willytell/Desktop/tcia_diagnosis_25_01_2019.xls'
 sheet_name='NoduleMalignancy'
 
 # Params to configure the feature extractor.
@@ -39,7 +37,7 @@ paramPath = os.path.join('config', 'Params.yaml')
 ########################################################################
 
 ######################## Output ########################################
-outputPath = '/home/willytell/Escritorio/output/pipeline2A'
+outputPath = '/home/willytell/Desktop/output/pipeline2A/Without_Image_Estandardization'
 extracted_features_train = os.path.join(outputPath, 'extractedFeatures_Train.xlsx')
 extracted_features_test = os.path.join(outputPath, 'extractedFeatures_Test.xlsx')
 ########################################################################

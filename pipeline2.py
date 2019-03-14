@@ -15,7 +15,7 @@ import os
 import pandas as pd
 from BasicIO.nifti import readNifti
 from BasicIO.filenameList import getImageMaskFilenamesAndDiagnosis
-from BasicIO.saveXLSX import saveXLSX
+from BasicIO.saveFeatures import saveXLSX
 from Features.radiomicFeatures import getPyRadiomicFeatures
 
 ######################## Input #########################################

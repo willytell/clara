@@ -56,11 +56,7 @@ def saveCSV(df, filename, sep=';', encoding='utf-8', index=False, verbose=True):
     """
 
     # CSV format
-    filename += '.csv'
-    if not os.path.isfile(filename):
-        df.to_csv(filename, index=False, sep=sep, encoding=encoding)
-        if verbose:
-            print("File saved: {}.".format(filename))
-    else:
-        print("Error: there is already a file named {}. Remove it!!".format(filename))
-        raise Exception("There is already a file named {}. Remove it!!!!")
+    df.to_csv(filename, index=False, sep=sep, encoding=encoding)
+
+    if verbose:
+        print("File saved: {}.".format(filename))

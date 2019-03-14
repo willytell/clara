@@ -6,37 +6,40 @@ from BasicImageProcessing.featureExtractionStrategy import RadiomicParallelClass
 from BasicIO.saveFeatures import saveCSV, saveXLSX
 
 
-################### Start of 'some parameters'
+######################## Input #########################################
 databasePath = '/home/willytell/Desktop'
 
-ctPath = 'LungCTDataBase/LIDC-IDRI/Nii_Vol/CT_nii'
-ctmaskPath = 'output/pipeline1A/CTshiftedmask_nii'
+ctPath = 'LungCTDataBase/LIDC-IDRI/Nii_Vol/CTRoi_nii'
+ctmaskPath = 'LungCTDataBase/LIDC-IDRI/Nii_Vol/CTRoimask_nii'
 
-image_filename = os.path.join(databasePath, ctPath, "image.nii.gz")       # full path to the image
-mask_filename = os.path.join(databasePath, ctmaskPath, "mask.nii.gz")     # full path to the mask
+image_filename = os.path.join(databasePath, ctPath, "LIDC-IDRI-0016_GT1_1.nii.gz")          # full path to the image
+mask_filename = os.path.join(databasePath, ctmaskPath, "LIDC-IDRI-0016_GT1_1_Mask.nii.gz")  # full path to the mask
 
 # Replace properly these two values. Here always they are 1,
 # but these information should be extracted from the file name.
 image_caseID = 1
-image_lessionID = 1
+image_lesionID = 1
 
-
-
+# Sliding Window
 winSize = 3     # [3 | 5 | 7 | 9 | 11 | so on ]. For example, 3 means a volume of 3x3x3.
 deltaX  = 1     # slide voxel in x direction
 deltaY  = 1     # slide voxel in y direction
 deltaZ  = 1     # slide voxel in z direction
 mode = 'edge'   # ['constant'|'edge'|'mean'| etc.] Look inside np.pad() for all the modes for padding.
 
-
+# Radiomic Parallel
 nCores = 4      # number of cores to be used in parallel during the feature extraction.
-paramPath = "/home/willytell/Documentos/PhD/lc3d/config/Params.yaml"
+paramPath = "/home/willytell/Documentos/PhD/clara/config/Params.yaml"
+########################################################################
 
-
+######################## Output ########################################
 outputFormat = 'xls'    # ['csv' | 'xls']
+outputPath = '/home/willytell/Desktop/output/pipeline4'
+outputFilename = os.path.join(outputPath, 'extractedFeatures')
+########################################################################
 
-################### End of 'some parameters'
 
+print("Start.")
 
 # Read image and mask.
 imageITK_xyz, image_arr_xyz, image_metadata = readNifti(image_filename)
@@ -64,23 +67,34 @@ elapsed_time = time.process_time() - start_time  # it measures in seconds
 
 print("    little_cubes.shape : {}, computed in: {:.2f} seconds.".format(little_cubes.shape, elapsed_time))
 
-
-
-
-
 myRadiomic = RadiomicParallelClass('ParallelRadiomics', nCores, paramPath, winSize)
 
-
-
-
-
-
 if little_cubes is not None:
-    # extract features (in parallel) and save them.
+    # Extract features (in parallel) and save them.
     df = myRadiomic.featureExtraction(little_cubes, mask_arr_xyz, image_filename, mask_filename,
-                                image_caseID, image_lessionID, image_metadata, mask_metadata)
+                                      image_caseID, image_lesionID, image_metadata, mask_metadata)
 
     if df is not None:
         if outputFormat == 'csv':
-            saveCSV(df, file)
+            # Add the extension to the output filename
+            outputFilename += '.csv'
 
+            # Verify that the file does not exist.
+            if not os.path.isfile(outputFilename):
+                saveCSV(df, outputFilename)
+            else:
+                print("Error: there is already a file named {}. Remove it!!".format(outputFilename))
+                raise Exception("There is already a file named {}. Remove it!!!!")
+
+        if outputFormat == 'xlsx':
+            # Add the extension to the output filename
+            outputFilename += '.xlsx'
+
+            # Verify that the file does not exist.
+            if not os.path.isfile(outputFilename):
+                saveXLSX(df, outputFilename)
+            else:
+                print("Error: there is already a file named {}. Remove it!!".format(outputFilename))
+                raise Exception("There is already a file named {}. Remove it!!!!")
+
+print("\nFinish.")

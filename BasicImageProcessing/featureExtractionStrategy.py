@@ -28,16 +28,16 @@ def do_it(i, x, y, z, flattened_index, winSize, paramPath, volume, label_value, 
 
     mask_trick = np.ones((winSize, winSize, winSize), dtype=np.int)
     maskITK = sitk.GetImageFromArray(mask_trick)
-    maskITK.origin = mask_metadata.origin
-    maskITK.spacing = mask_metadata.spacing
-    maskITK.direction = mask_metadata.direction
+    maskITK.origin = image_metadata.origin
+    maskITK.spacing = image_metadata.spacing
+    maskITK.direction = image_metadata.direction
 
     extractor = featureextractor.RadiomicsFeaturesExtractor(paramPath)
 
     imageITK = sitk.GetImageFromArray(volume)
-    imageITK.origin = image_metadata.origin
-    imageITK.spacing = image_metadata.spacing
-    imageITK.direction = image_metadata.direction
+    imageITK.origin = mask_metadata.origin
+    imageITK.spacing = mask_metadata.spacing
+    imageITK.direction = mask_metadata.direction
 
     new_row = {}
 
@@ -49,8 +49,8 @@ def do_it(i, x, y, z, flattened_index, winSize, paramPath, volume, label_value, 
         # print('Computed %s: %s' % (featureName, featureVector[featureName]))
         # print(featureVector[featureName])
         if ('firstorder' in featureName) or ('glszm' in featureName) or \
-                ('glcm' in featureName) or ('glrlm' in featureName) or \
-                ('gldm' in featureName):
+            ('glcm' in featureName) or ('glrlm' in featureName) or \
+            ('gldm' in featureName):
             new_row.update({featureName: featureVector[featureName]})
 
     lst = sorted(new_row.items())  # Ordering the new_row dictionary
@@ -82,13 +82,11 @@ def do_it(i, x, y, z, flattened_index, winSize, paramPath, volume, label_value, 
 
 
 class RadiomicParallelClass():
-    def __init__(self, name, ncores, paramPath, winSize=3):
+    def __init__(self, name, ncores):
         self.name = name
         self.radiomicNCores = ncores
-        self.paramPath = paramPath
-        self.winSize = winSize
 
-    def featureExtraction(self, array, mask, image_filename, mask_filename, caseID, lessionID, image_metadata, mask_metadata):
+    def featureExtraction(self, array, mask, image_filename, mask_filename, caseID, lessionID, image_metadata, mask_metadata, winSize, paramPath):
         print("      Using Parallel Radiomics to extract features...")
 
         assert type(array).__module__ == np.__name__, "Error, expected a numpy object."
@@ -114,9 +112,10 @@ class RadiomicParallelClass():
                     volume = array[z, x, y]     # get a cube from the array (little cubes).
                     label_value = mask[z, x, y] # label value of the mask in the position [z,x,y]
                     [flattened_index] = np.ravel_multi_index([[x], [y], [z]], (max_x, max_y, max_z))  # order='C'
+
                     i = flattened_index # used to get back an ordered list.
 
-                    pool.apply_async(do_it, args=(i, x, y, z, flattened_index, self.winSize, self.paramPath, volume, label_value,
+                    pool.apply_async(do_it, args=(i, x, y, z, flattened_index, winSize, paramPath, volume, label_value,
                                     image_filename, mask_filename, caseID, lessionID, image_metadata, mask_metadata), callback=collect_result)
 
         pool.close()

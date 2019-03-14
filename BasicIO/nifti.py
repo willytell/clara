@@ -3,8 +3,8 @@ import numpy as np
 
 
 class Metadata():
-    def __init__(self, origen=None, spacing=None, direction=None):
-        self.origen = origen
+    def __init__(self, origin=None, spacing=None, direction=None):
+        self.origin = origin
         self.spacing = spacing
         self.direction = direction
 

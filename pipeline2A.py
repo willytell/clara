@@ -83,7 +83,7 @@ for index in range(len(df_train)):
     # new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
     #
     # # Setting properties
-    # new_imageITK_xyz.SetOrigin(image_metadata.origen)
+    # new_imageITK_xyz.SetOrigin(image_metadata.origin)
     # new_imageITK_xyz.SetDirection(image_metadata.direction)
     # new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 
@@ -134,7 +134,7 @@ for index in range(0, len(mask_list)):
     # new_imageITK_xyz = sitk.GetImageFromArray(standardized_image_arr_zyx)
     #
     # # Setting properties
-    # new_imageITK_xyz.SetOrigin(image_metadata.origen)
+    # new_imageITK_xyz.SetOrigin(image_metadata.origin)
     # new_imageITK_xyz.SetDirection(image_metadata.direction)
     # new_imageITK_xyz.SetSpacing(image_metadata.spacing)
 

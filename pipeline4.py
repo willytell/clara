@@ -29,11 +29,13 @@ mode = 'edge'   # ['constant'|'edge'|'mean'| etc.] Look inside np.pad() for all 
 
 # Radiomic Parallel
 nCores = 4      # number of cores to be used in parallel during the feature extraction.
-paramPath = "/home/willytell/Documentos/PhD/clara/config/Params.yaml"
+paramPath = "/home/willytell/Documents/PhD/clara/config/Params.yaml"
+
+# Note: SlidingWindow() and Radiomic.featureExtraction() use the same variable: winSize.
 ########################################################################
 
 ######################## Output ########################################
-outputFormat = 'xls'    # ['csv' | 'xls']
+outputFormat = 'xlsx'    # ['csv' | 'xlsx']
 outputPath = '/home/willytell/Desktop/output/pipeline4'
 outputFilename = os.path.join(outputPath, 'extractedFeatures')
 ########################################################################
@@ -50,12 +52,18 @@ maskITK_xyz, mask_arr_xyz, mask_metadata = readNifti(mask_filename)
 assert image_arr_xyz.shape == mask_arr_xyz.shape, "Error: image and mask shape must match!"
 
 
-slidingWindow = SlidingWindow(window_size=winSize, mode=mode)
+slidingWindow = SlidingWindow(window_size=winSize,
+                              mode=mode,
+                              window=(winSize, winSize, winSize),
+                              asteps=(deltaZ, deltaX, deltaY),  # asteps = (z,x,y)
+                              wsteps=None,
+                              axes=None,
+                              toend=True)
 
 # adding Pad to the volume
 image_arr_xyz_padded = slidingWindow.padding(image_arr_xyz)
-print("    The image array has a volume's shape : {}.".format(image_arr_xyz.shape))
-print("    The image array has been padded using the method: '{}, now its shape is: {}'.".format(slidingWindow.mode,
+print("\nThe image array has a volume's shape : {}.".format(image_arr_xyz.shape))
+print("The image array has been padded using the method: '{}', now its shape is: {}'.".format(slidingWindow.mode,
                                                                                                  image_arr_xyz_padded.shape))
 
 # little_cubes will contains all the small volumes generated
@@ -65,14 +73,15 @@ start_time = time.process_time()
 little_cubes = slidingWindow.rolling_window(image_arr_xyz_padded)
 elapsed_time = time.process_time() - start_time  # it measures in seconds
 
-print("    little_cubes.shape : {}, computed in: {:.2f} seconds.".format(little_cubes.shape, elapsed_time))
+print("little_cubes.shape : {}, computed in: {:.2f} seconds.".format(little_cubes.shape, elapsed_time))
 
-myRadiomic = RadiomicParallelClass('ParallelRadiomics', nCores, paramPath, winSize)
+myRadiomic = RadiomicParallelClass('ParallelRadiomics', nCores)
 
 if little_cubes is not None:
     # Extract features (in parallel) and save them.
     df = myRadiomic.featureExtraction(little_cubes, mask_arr_xyz, image_filename, mask_filename,
-                                      image_caseID, image_lesionID, image_metadata, mask_metadata)
+                                      image_caseID, image_lesionID, image_metadata, mask_metadata, winSize, paramPath)
+
 
     if df is not None:
         if outputFormat == 'csv':
